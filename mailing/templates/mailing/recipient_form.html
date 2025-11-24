@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Форма получателя{% endblock %}
+
+{% block content %}
+<h1>
+    {% if view.object %}
+    Редактирование получателя
+    {% else %}
+    Новый получатель
+    {% endif %}
+</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить</button>
+</form>
+
+<p><a href="{% url 'mailing:recipient_list' %}">Назад к списку</a></p>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Получатель {{ object.full_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ object.full_name }}</h1>
+
+<p><strong>Email:</strong> {{ object.email }}</p>
+<p><strong>Комментарий:</strong> {{ object.comment|default:"—" }}</p>
+
+<p>
+    <a href="{% url 'mailing:recipient_update' object.pk %}">Редактировать</a> |
+    <a href="{% url 'mailing:recipient_delete' object.pk %}">Удалить</a> |
+    <a href="{% url 'mailing:recipient_list' %}">Назад к списку</a>
+</p>
+{% endblock %}
