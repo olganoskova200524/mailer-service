@@ -1,0 +1,55 @@
+# --- Python bytecode / кеш ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# --- Виртуальные окружения ---
+venv/
+.venv/
+env/
+.env.bak/
+.python-version
+
+# --- Логи и покрытия ---
+*.log
+.coverage
+.coverage.*
+htmlcov/
+pytestdebug.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+.pyre/
+
+# --- Django ---
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+.whitenoise-*
+
+# --- Конфиги/секреты ---
+.env
+.env.local
+.env.*.local
+*.secret
+*.key
+
+# --- IDE/редакторы ---
+.idea/
+.vscode/
+*.code-workspace
+.ropeproject/
+
+# --- Сборки/артефакты ---
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- ОС мусор ---
+.DS_Store
+Thumbs.db
