@@ -5,6 +5,21 @@
 {% block content %}
 <h1>Сообщения</h1>
 
-<p>Заглушка</p>
+<p><a href="{% url 'mailing:message_create' %}">Создать сообщение</a></p>
 
+<ul>
+    {% for item in object_list %}
+        <li>
+            <a href="{% url 'mailing:message_detail' item.pk %}">
+                {{ item.subject }}
+            </a>
+            (
+            <a href="{% url 'mailing:message_update' item.pk %}">Изменить</a> |
+            <a href="{% url 'mailing:message_delete' item.pk %}">Удалить</a>
+            )
+        </li>
+    {% empty %}
+        <li>Пока нет сообщений.</li>
+    {% endfor %}
+</ul>
 {% endblock %}

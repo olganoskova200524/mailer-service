@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Сообщение {{ object.subject }}{% endblock %}
+
+{% block content %}
+<h1>{{ object.subject }}</h1>
+
+<p><strong>Текст:</strong></p>
+<p>{{ object.body|linebreaks }}</p>
+
+<p>
+    <a href="{% url 'mailing:message_update' object.pk %}">Редактировать</a> |
+    <a href="{% url 'mailing:message_delete' object.pk %}">Удалить</a> |
+    <a href="{% url 'mailing:message_list' %}">Назад к списку</a>
+</p>
+{% endblock %}

@@ -74,3 +74,41 @@ class MessageListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Message.objects.filter(owner=self.request.user)
+
+
+class MessageDetailView(LoginRequiredMixin, DetailView):
+    model = Message
+    template_name = "mailing/message_detail.html"
+
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
+
+
+class MessageCreateView(LoginRequiredMixin, CreateView):
+    model = Message
+    fields = ["subject", "body"]
+    template_name = "mailing/message_form.html"
+    success_url = reverse_lazy("mailing:message_list")
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+
+class MessageUpdateView(LoginRequiredMixin, UpdateView):
+    model = Message
+    fields = ["subject", "body"]
+    template_name = "mailing/message_form.html"
+    success_url = reverse_lazy("mailing:message_list")
+
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
+
+
+class MessageDeleteView(LoginRequiredMixin, DeleteView):
+    model = Message
+    template_name = "mailing/message_confirm_delete.html"
+    success_url = reverse_lazy("mailing:message_list")
+
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
