@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Рассылка #{{ object.id }}{% endblock %}
+
+{% block content %}
+<h1>Рассылка #{{ object.id }}</h1>
+
+<p><strong>Сообщение:</strong> {{ object.message.subject }}</p>
+<p><strong>Дата начала:</strong> {{ object.start_at }}</p>
+<p><strong>Дата окончания:</strong> {{ object.end_at }}</p>
+<p><strong>Статус:</strong> {{ object.get_status_display }}</p>
+
+<p><strong>Получатели:</strong></p>
+<ul>
+    {% for recipient in object.recipients.all %}
+    <li>{{ recipient.full_name }} — {{ recipient.email }}</li>
+    {% empty %}
+    <li>Получатели не указаны.</li>
+    {% endfor %}
+</ul>
+
+<p>
+    <a href="{% url 'mailing:mailing_update' object.pk %}">Редактировать</a> |
+    <a href="{% url 'mailing:mailing_delete' object.pk %}">Удалить</a> |
+    <a href="{% url 'mailing:mailing_list' %}">Назад к списку</a>
+</p>
+{% endblock %}
