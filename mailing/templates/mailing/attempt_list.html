@@ -1,6 +1,48 @@
 {% extends "base.html" %}
 {% block title %}Попытки рассылок{% endblock %}
+
 {% block content %}
-<h1>Попытки рассылок</h1>
-<p>Заглушка</p>
+<h1 class="h3 mb-3">Попытки рассылок</h1>
+
+{% if object_list %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+        <tr>
+            <th>Рассылка</th>
+            <th>Дата и время</th>
+            <th>Статус</th>
+            <th>Ответ сервера</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for attempt in object_list %}
+        <tr>
+            <td>
+                <a href="{% url 'mailing:mailing_detail' attempt.mailing.pk %}">
+                    #{{ attempt.mailing.pk }} ({{ attempt.mailing.message.subject }})
+                </a>
+            </td>
+
+            <td>{{ attempt.created_at }}</td>
+
+            <td>
+                {% if attempt.status == 'Успешно' %}
+                <span class="badge bg-success">{{ attempt.status }}</span>
+                {% else %}
+                <span class="badge bg-danger">{{ attempt.status }}</span>
+                {% endif %}
+            </td>
+
+            <td class="text-muted small">
+                {{ attempt.response|default:"—" }}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">Пока нет попыток рассылок.</p>
+{% endif %}
 {% endblock %}

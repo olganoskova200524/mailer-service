@@ -1,16 +1,25 @@
 {% extends "base.html" %}
-
 {% block title %}Сообщение {{ object.subject }}{% endblock %}
 
 {% block content %}
-<h1>{{ object.subject }}</h1>
-
-<p><strong>Текст:</strong></p>
-<p>{{ object.body|linebreaks }}</p>
-
-<p>
-    <a href="{% url 'mailing:message_update' object.pk %}">Редактировать</a> |
-    <a href="{% url 'mailing:message_delete' object.pk %}">Удалить</a> |
-    <a href="{% url 'mailing:message_list' %}">Назад к списку</a>
-</p>
+<div class="card">
+    <div class="card-body">
+        <h1 class="h4 card-title mb-3">{{ object.subject }}</h1>
+        <h6 class="text-muted mb-3">Текст сообщения</h6>
+        <p class="card-text" style="white-space: pre-line;">
+            {{ object.body }}
+        </p>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+        <a href="{% url 'mailing:message_list' %}" class="btn btn-outline-secondary">
+            Назад к списку
+        </a>
+        <div>
+            <a href="{% url 'mailing:message_update' object.pk %}"
+               class="btn btn-primary me-2">Редактировать</a>
+            <a href="{% url 'mailing:message_delete' object.pk %}"
+               class="btn btn-danger">Удалить</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

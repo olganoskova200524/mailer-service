@@ -1,8 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views import View
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 
 from .models import Recipient, Message, Mailing, MailingAttempt
+from .services import send_mailing_now
 
 
 class RecipientListView(LoginRequiredMixin, ListView):
@@ -150,3 +153,38 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return MailingAttempt.objects.filter(mailing__owner=self.request.user)
+
+
+class MailingSendView(LoginRequiredMixin, View):
+
+    def post(self, request, pk, *args, **kwargs):
+        mailing = get_object_or_404(Mailing, pk=pk, owner=request.user)
+        send_mailing_now(mailing)
+        return redirect("mailing:mailing_detail", pk=mailing.pk)
+
+
+class IndexView(TemplateView):
+    template_name = "index.html"
+
+    def get_context_data(self, **kwargs):
+        from .models import Mailing, Recipient  # локальный импорт, чтобы избежать циклов
+
+        context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+        if user.is_authenticated:
+            mailings = Mailing.objects.filter(owner=user)
+            recipients = Recipient.objects.filter(owner=user)
+        else:
+            mailings = Mailing.objects.all()
+            recipients = Recipient.objects.all()
+
+        context["total_mailings"] = mailings.count()
+        context["active_mailings"] = mailings.filter(
+            status=Mailing.STATUS_RUNNING
+        ).count()
+        context["unique_recipients"] = (
+            recipients.values("email").distinct().count()
+        )
+
+        return context

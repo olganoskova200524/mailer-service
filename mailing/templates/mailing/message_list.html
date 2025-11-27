@@ -1,25 +1,47 @@
 {% extends "base.html" %}
-
 {% block title %}Сообщения{% endblock %}
 
 {% block content %}
-<h1>Сообщения</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Сообщения</h1>
+    <a href="{% url 'mailing:message_create' %}" class="btn btn-success">
+        Создать сообщение
+    </a>
+</div>
 
-<p><a href="{% url 'mailing:message_create' %}">Создать сообщение</a></p>
-
-<ul>
-    {% for item in object_list %}
-        <li>
-            <a href="{% url 'mailing:message_detail' item.pk %}">
-                {{ item.subject }}
-            </a>
-            (
-            <a href="{% url 'mailing:message_update' item.pk %}">Изменить</a> |
-            <a href="{% url 'mailing:message_delete' item.pk %}">Удалить</a>
-            )
-        </li>
-    {% empty %}
-        <li>Пока нет сообщений.</li>
-    {% endfor %}
-</ul>
+{% if object_list %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+        <tr>
+            <th>Тема</th>
+            <th>Тело</th>
+            <th class="text-end">Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for message in object_list %}
+        <tr>
+            <td>
+                <a href="{% url 'mailing:message_detail' message.pk %}">
+                    {{ message.subject }}
+                </a>
+            </td>
+            <td class="text-muted small">
+                {{ message.body|truncatechars:120 }}
+            </td>
+            <td class="text-end">
+                <a href="{% url 'mailing:message_update' message.pk %}"
+                   class="btn btn-sm btn-outline-primary">Изменить</a>
+                <a href="{% url 'mailing:message_delete' message.pk %}"
+                   class="btn btn-sm btn-outline-danger">Удалить</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">Пока нет сообщений.</p>
+{% endif %}
 {% endblock %}

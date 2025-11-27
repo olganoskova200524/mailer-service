@@ -1,45 +1,55 @@
 {% extends "base.html" %}
-
 {% block title %}Рассылки{% endblock %}
 
 {% block content %}
-<h1>Рассылки</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Рассылки</h1>
+    <a href="{% url 'mailing:mailing_create' %}" class="btn btn-success">
+        Создать рассылку
+    </a>
+</div>
 
-<p><a href="{% url 'mailing:mailing_create' %}">Создать рассылку</a></p>
-
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Сообщение</th>
-        <th>Дата начала</th>
-        <th>Дата окончания</th>
-        <th>Статус</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for mailing in object_list %}
-    <tr>
-        <td>{{ mailing.id }}</td>
-        <td>
-            <a href="{% url 'mailing:mailing_detail' mailing.pk %}">
-                {{ mailing.message.subject }}
-            </a>
-        </td>
-        <td>{{ mailing.start_at }}</td>
-        <td>{{ mailing.end_at }}</td>
-        <td>{{ mailing.get_status_display }}</td>
-        <td>
-            <a href="{% url 'mailing:mailing_update' mailing.pk %}">Изменить</a> |
-            <a href="{% url 'mailing:mailing_delete' mailing.pk %}">Удалить</a>
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="6">Пока нет рассылок.</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+{% if object_list %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+        <tr>
+            <th>#</th>
+            <th>Сообщение</th>
+            <th>Начало</th>
+            <th>Окончание</th>
+            <th>Статус</th>
+            <th class="text-end">Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for mailing in object_list %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+                <a href="{% url 'mailing:mailing_detail' mailing.pk %}">
+                    {{ mailing.message.subject|default:"(без темы)" }}
+                </a>
+            </td>
+            <td>{{ mailing.start_at }}</td>
+            <td>{{ mailing.end_at }}</td>
+            <td>
+                        <span class="badge bg-secondary">
+                            {{ mailing.status }}
+                        </span>
+            </td>
+            <td class="text-end">
+                <a href="{% url 'mailing:mailing_update' mailing.pk %}"
+                   class="btn btn-sm btn-outline-primary">Изменить</a>
+                <a href="{% url 'mailing:mailing_delete' mailing.pk %}"
+                   class="btn btn-sm btn-outline-danger">Удалить</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">Пока нет рассылок.</p>
+{% endif %}
 {% endblock %}

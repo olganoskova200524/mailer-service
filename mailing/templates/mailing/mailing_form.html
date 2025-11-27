@@ -1,19 +1,9 @@
 {% extends "base.html" %}
-
-{% block title %}
-{% if view.object %}Редактирование рассылки{% else %}Новая рассылка{% endif %}
-{% endblock %}
+{% block title %}Рассылка{% endblock %}
 
 {% block content %}
-<h1>
-    {% if view.object %}Редактирование рассылки{% else %}Новая рассылка{% endif %}
-</h1>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Сохранить</button>
-</form>
-
-<p><a href="{% url 'mailing:mailing_list' %}">Назад к списку</a></p>
+<div class="container mt-4" style="max-width: 600px;">
+    <h2 class="mb-4">Рассылка</h2>
+    {% include "partials/form.html" %}
+</div>
 {% endblock %}
