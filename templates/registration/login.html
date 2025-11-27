@@ -1,13 +1,9 @@
 {% extends "base.html" %}
-
 {% block title %}Вход{% endblock %}
 
 {% block content %}
-<h1>Вход</h1>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Войти</button>
-</form>
+<div class="container mt-5" style="max-width: 500px;">
+    <h2 class="mb-4">Вход</h2>
+    {% include "partials/form.html" with button_label="Войти" %}
+</div>
 {% endblock %}

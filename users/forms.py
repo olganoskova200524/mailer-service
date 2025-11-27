@@ -1,17 +1,60 @@
-from django.contrib.auth.forms import UserCreationForm
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import User
+
+
+class UserLoginForm(AuthenticationForm):
+    username = forms.EmailField(
+        label="Email",
+        widget=forms.EmailInput(attrs={
+            "class": "form-control",
+            "placeholder": "Введите email",
+        })
+    )
+    password = forms.CharField(
+        label="Пароль",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Введите пароль",
+        })
+    )
 
 
 class UserRegisterForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ("email", "password1", "password2", "avatar", "phone", "country")
+        fields = ("email", "avatar", "phone", "country",)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        widgets = {
+            "email": forms.EmailInput(attrs={
+                "class": "form-control",
+                "placeholder": "Введите email",
+            }),
+            "avatar": forms.ClearableFileInput(attrs={
+                "class": "form-control",
+            }),
+            "phone": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Введите номер телефона",
+            }),
+            "country": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Введите страну",
+            }),
+        }
 
-        self.fields["email"].label = "Email"
-        self.fields["password1"].label = "Пароль"
-        self.fields["password2"].label = "Подтверждение пароля"
+    password1 = forms.CharField(
+        label="Пароль",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Введите пароль",
+        })
+    )
+    password2 = forms.CharField(
+        label="Подтверждение пароля",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Повторите пароль",
+        })
+    )
