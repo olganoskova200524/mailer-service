@@ -4,6 +4,11 @@
 {% block content %}
 <div class="container mt-5" style="max-width: 500px;">
     <h2 class="mb-4">Вход</h2>
+
     {% include "partials/form.html" with button_label="Войти" %}
+
+    <p class="mt-3 text-center">
+        <a href="{% url 'password_reset' %}">Забыли пароль?</a>
+    </p>
 </div>
 {% endblock %}

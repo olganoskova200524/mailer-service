@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from django.contrib.messages import constants as messages
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
@@ -29,6 +30,14 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = 'mailing:recipient_list'
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login'
+
+MESSAGE_TAGS = {
+    messages.DEBUG: "secondary",
+    messages.INFO: "info",
+    messages.SUCCESS: "success",
+    messages.WARNING: "warning",
+    messages.ERROR: "danger",
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
