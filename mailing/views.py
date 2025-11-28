@@ -163,28 +163,34 @@ class MailingSendView(LoginRequiredMixin, View):
         return redirect("mailing:mailing_detail", pk=mailing.pk)
 
 
-class IndexView(TemplateView):
+class IndexView(LoginRequiredMixin, TemplateView):
     template_name = "index.html"
 
     def get_context_data(self, **kwargs):
-        from .models import Mailing, Recipient  # локальный импорт, чтобы избежать циклов
-
         context = super().get_context_data(**kwargs)
-
         user = self.request.user
-        if user.is_authenticated:
-            mailings = Mailing.objects.filter(owner=user)
-            recipients = Recipient.objects.filter(owner=user)
-        else:
-            mailings = Mailing.objects.all()
-            recipients = Recipient.objects.all()
 
-        context["total_mailings"] = mailings.count()
-        context["active_mailings"] = mailings.filter(
+        user_mailings = Mailing.objects.filter(owner=user)
+        user_recipients = Recipient.objects.filter(owner=user)
+
+        context["total_mailings"] = user_mailings.count()
+        context["active_mailings"] = user_mailings.filter(
             status=Mailing.STATUS_RUNNING
         ).count()
         context["unique_recipients"] = (
-            recipients.values("email").distinct().count()
+            user_recipients.values("email").distinct().count()
         )
+
+        attempts = MailingAttempt.objects.filter(mailing__owner=user)
+
+        context["attempts_success"] = attempts.filter(
+            status=MailingAttempt.STATUS_SUCCESS
+        ).count()
+
+        context["attempts_failed"] = attempts.filter(
+            status=MailingAttempt.STATUS_FAILED
+        ).count()
+
+        context["messages_sent"] = context["attempts_success"]
 
         return context
