@@ -59,6 +59,11 @@ class User(AbstractUser):
         max_length=100,
         blank=True,
     )
+    is_manager = models.BooleanField(
+        default=False,
+        verbose_name="manager status",
+        help_text="Отмечайте, если пользователь является менеджером",
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

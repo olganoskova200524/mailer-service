@@ -6,13 +6,30 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ("email", "is_active", "is_staff", "is_superuser")
+    list_display = (
+        "email",
+        "first_name",
+        "last_name",
+        "is_staff",
+        "is_superuser",
+        "is_manager",
+        "is_active",
+    )
+
+    list_filter = (
+        "is_staff",
+        "is_superuser",
+        "is_manager",
+        "is_active",
+        "groups",
+    )
+
     ordering = ("email",)
     search_fields = ("email",)
 
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Персональная информация", {"fields": ("first_name", "last_name")}),
+        ("Персональная информация", {"fields": ("first_name", "last_name", "avatar", "phone", "country")}),
         (
             "Права доступа",
             {
@@ -20,6 +37,7 @@ class UserAdmin(BaseUserAdmin):
                     "is_active",
                     "is_staff",
                     "is_superuser",
+                    "is_manager",
                     "groups",
                     "user_permissions",
                 )
@@ -33,7 +51,12 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "password1", "password2"),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "is_manager",
+                ),
             },
         ),
     )

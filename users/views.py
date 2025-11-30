@@ -1,19 +1,57 @@
-from django.contrib import messages
-from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
+from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import redirect, render
+from django.contrib import messages
+from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views import View
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, ListView, View
 
 from .forms import UserRegisterForm, UserLoginForm
 
 User = get_user_model()
+
+
+class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Список всех пользователей, доступный только менеджерам."""
+    model = User
+    template_name = "users/user_list.html"
+    context_object_name = "users"
+
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or getattr(user, "is_manager", False)
+
+
+class UserToggleActiveView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    Позволяет менеджеру заблокировать или разблокировать пользователя.
+    Запрещает выполнять действие над самим собой.
+    """
+
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or getattr(user, "is_manager", False)
+
+    def post(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+
+        if user == request.user:
+            messages.error(request, "Нельзя заблокировать самого себя.")
+            return redirect("users:user_list")
+
+        user.is_active = not user.is_active
+        user.save(update_fields=["is_active"])
+
+        if user.is_active:
+            messages.success(request, f"Пользователь {user.email} разблокирован.")
+        else:
+            messages.warning(request, f"Пользователь {user.email} заблокирован.")
+
+        return redirect("users:user_list")
 
 
 class UserLoginView(LoginView):
@@ -69,6 +107,8 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
 
 class ActivateEmailView(View):
+    """Активирует учётную запись пользователя при переходе по ссылке подтверждения email."""
+
     def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
