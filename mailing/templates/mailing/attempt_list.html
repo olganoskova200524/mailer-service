@@ -24,18 +24,18 @@
                 </a>
             </td>
 
-            <td>{{ attempt.created_at }}</td>
+            <td>{{ attempt.attempted_at|date:"d E Y, H:i" }}</td>
 
             <td>
-                {% if attempt.status == 'Успешно' %}
-                <span class="badge bg-success">{{ attempt.status }}</span>
+                {% if attempt.status == 'success' %}
+                <span class="badge bg-success">{{ attempt.get_status_display }}</span>
                 {% else %}
-                <span class="badge bg-danger">{{ attempt.status }}</span>
+                <span class="badge bg-danger">{{ attempt.get_status_display }}</span>
                 {% endif %}
             </td>
 
             <td class="text-muted small">
-                {{ attempt.response|default:"—" }}
+                {{ attempt.server_response|default:"—" }}
             </td>
         </tr>
         {% endfor %}

@@ -31,13 +31,21 @@
                     {{ mailing.message.subject|default:"(без темы)" }}
                 </a>
             </td>
-            <td>{{ mailing.start_at }}</td>
-            <td>{{ mailing.end_at }}</td>
+            <td>{{ mailing.start_at|date:"d E Y, H:i" }}</td>
+            <td>{{ mailing.end_at|date:"d E Y, H:i" }}</td>
+
             <td>
-                        <span class="badge bg-secondary">
-                            {{ mailing.status }}
-                        </span>
+                {% if mailing.status == 'created' %}
+                <span class="badge bg-secondary">Создана</span>
+                {% elif mailing.status == 'running' %}
+                <span class="badge bg-primary">Запущена</span>
+                {% elif mailing.status == 'finished' %}
+                <span class="badge bg-success">Завершена</span>
+                {% else %}
+                <span class="badge bg-dark">{{ mailing.status }}</span>
+                {% endif %}
             </td>
+
             <td class="text-end">
                 <a href="{% url 'mailing:mailing_update' mailing.pk %}"
                    class="btn btn-sm btn-outline-primary">Изменить</a>
