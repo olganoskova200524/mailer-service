@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
+from django.views.decorators.cache import cache_control
+from django.utils.decorators import method_decorator
 
 from .models import Recipient, Message, Mailing, MailingAttempt
 from .services import send_mailing_now, get_user_stats, get_global_stats
@@ -109,6 +111,7 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
         return Message.objects.filter(owner=self.request.user)
 
 
+@method_decorator(cache_control(private=True, max_age=60), name="dispatch")
 class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
     template_name = "mailing/mailing_list.html"
@@ -180,6 +183,7 @@ class MailingSendView(LoginRequiredMixin, View):
         return redirect("mailing:mailing_detail", pk=mailing.pk)
 
 
+@method_decorator(cache_control(private=True, max_age=60), name="dispatch")
 class IndexView(LoginRequiredMixin, TemplateView):
     template_name = "index.html"
 
@@ -213,6 +217,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
         return context
 
 
+@method_decorator(cache_control(private=True, max_age=60), name="dispatch")
 class StatisticsView(LoginRequiredMixin, TemplateView):
     template_name = "mailing/statistics.html"
 

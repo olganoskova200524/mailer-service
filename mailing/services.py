@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.db.models import Count, Q
@@ -60,7 +61,13 @@ def send_mailing_now(mailing: Mailing) -> None:
 def get_user_stats(user):
     """
     Статистика по конкретному пользователю.
+    Результат кешируется на 60 секунд.
     """
+    cache_key = f"user_stats_{user.pk}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     mailings_qs = Mailing.objects.filter(owner=user)
     recipients_qs = Recipient.objects.filter(owner=user)
     messages_qs = Message.objects.filter(owner=user)
@@ -89,7 +96,7 @@ def get_user_stats(user):
         ),
     )
 
-    return {
+    data = {
         "mailings_count": mailings_qs.count(),
         "recipients_count": recipients_qs.count(),
         "messages_count": messages_qs.count(),
@@ -100,11 +107,20 @@ def get_user_stats(user):
         "mailings_stats": mailings_stats,
     }
 
+    cache.set(cache_key, data, timeout=60)
+    return data
+
 
 def get_global_stats():
     """
     Общесистемная статистика (для менеджера).
+    Результат кешируется на 60 секунд.
     """
+    cache_key = "global_stats"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     mailings_qs = Mailing.objects.all()
     recipients_qs = Recipient.objects.all()
     messages_qs = Message.objects.all()
@@ -121,7 +137,6 @@ def get_global_stats():
     failed = attempts_agg["failed"] or 0
     success_rate = round(success / total * 100, 1) if total > 0 else 0
 
-    # Статистика по всем рассылкам
     mailings_stats = mailings_qs.annotate(
         attempts_total=Count("attempts"),
         attempts_success=Count(
@@ -148,7 +163,7 @@ def get_global_stats():
         ),
     )
 
-    return {
+    data = {
         "mailings_count": mailings_qs.count(),
         "recipients_count": recipients_qs.count(),
         "messages_count": messages_qs.count(),
@@ -159,3 +174,6 @@ def get_global_stats():
         "mailings_stats": mailings_stats,
         "users_stats": users_stats,
     }
+
+    cache.set(cache_key, data, timeout=60)
+    return data
