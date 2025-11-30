@@ -5,7 +5,7 @@ from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 
 from .models import Recipient, Message, Mailing, MailingAttempt
-from .services import send_mailing_now
+from .services import send_mailing_now, get_user_stats, get_global_stats
 
 
 class RecipientListView(LoginRequiredMixin, ListView):
@@ -54,8 +54,10 @@ class RecipientDetailView(LoginRequiredMixin, DetailView):
     template_name = "mailing/recipient_detail.html"
 
     def get_queryset(self):
-        # только свои получатели
-        return Recipient.objects.filter(owner=self.request.user)
+        user = self.request.user
+        if user.is_manager:
+            return Recipient.objects.all()
+        return Recipient.objects.filter(owner=user)
 
 
 class MessageListView(LoginRequiredMixin, ListView):
@@ -207,5 +209,23 @@ class IndexView(LoginRequiredMixin, TemplateView):
         ).count()
 
         context["messages_sent"] = context["attempts_success"]
+
+        return context
+
+
+class StatisticsView(LoginRequiredMixin, TemplateView):
+    template_name = "mailing/statistics.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        is_manager = user.is_manager
+
+        context["is_manager"] = is_manager
+        context["user_stats"] = get_user_stats(user)
+
+        if is_manager:
+            context["global_stats"] = get_global_stats()
 
         return context

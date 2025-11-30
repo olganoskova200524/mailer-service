@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.db.models import Count, Q
+from django.contrib.auth import get_user_model
 
-from .models import Mailing, MailingAttempt
+from .models import Mailing, Recipient, Message, MailingAttempt
 
 
 def send_mailing_now(mailing: Mailing) -> None:
@@ -53,3 +55,107 @@ def send_mailing_now(mailing: Mailing) -> None:
     if mailing.end_at <= timezone.now():
         mailing.status = Mailing.STATUS_FINISHED
         mailing.save(update_fields=["status"])
+
+
+def get_user_stats(user):
+    """
+    Статистика по конкретному пользователю.
+    """
+    mailings_qs = Mailing.objects.filter(owner=user)
+    recipients_qs = Recipient.objects.filter(owner=user)
+    messages_qs = Message.objects.filter(owner=user)
+    attempts_qs = MailingAttempt.objects.filter(mailing__owner=user)
+
+    attempts_agg = attempts_qs.aggregate(
+        total=Count("id"),
+        success=Count("id", filter=Q(status=MailingAttempt.STATUS_SUCCESS)),
+        failed=Count("id", filter=Q(status=MailingAttempt.STATUS_FAILED)),
+    )
+
+    total = attempts_agg["total"] or 0
+    success = attempts_agg["success"] or 0
+    failed = attempts_agg["failed"] or 0
+    success_rate = round(success / total * 100, 1) if total > 0 else 0
+
+    mailings_stats = mailings_qs.annotate(
+        attempts_total=Count("attempts"),
+        attempts_success=Count(
+            "attempts",
+            filter=Q(attempts__status=MailingAttempt.STATUS_SUCCESS),
+        ),
+        attempts_failed=Count(
+            "attempts",
+            filter=Q(attempts__status=MailingAttempt.STATUS_FAILED),
+        ),
+    )
+
+    return {
+        "mailings_count": mailings_qs.count(),
+        "recipients_count": recipients_qs.count(),
+        "messages_count": messages_qs.count(),
+        "attempts_total": total,
+        "attempts_success": success,
+        "attempts_failed": failed,
+        "attempts_success_rate": success_rate,
+        "mailings_stats": mailings_stats,
+    }
+
+
+def get_global_stats():
+    """
+    Общесистемная статистика (для менеджера).
+    """
+    mailings_qs = Mailing.objects.all()
+    recipients_qs = Recipient.objects.all()
+    messages_qs = Message.objects.all()
+    attempts_qs = MailingAttempt.objects.all()
+
+    attempts_agg = attempts_qs.aggregate(
+        total=Count("id"),
+        success=Count("id", filter=Q(status=MailingAttempt.STATUS_SUCCESS)),
+        failed=Count("id", filter=Q(status=MailingAttempt.STATUS_FAILED)),
+    )
+
+    total = attempts_agg["total"] or 0
+    success = attempts_agg["success"] or 0
+    failed = attempts_agg["failed"] or 0
+    success_rate = round(success / total * 100, 1) if total > 0 else 0
+
+    # Статистика по всем рассылкам
+    mailings_stats = mailings_qs.annotate(
+        attempts_total=Count("attempts"),
+        attempts_success=Count(
+            "attempts",
+            filter=Q(attempts__status=MailingAttempt.STATUS_SUCCESS),
+        ),
+        attempts_failed=Count(
+            "attempts",
+            filter=Q(attempts__status=MailingAttempt.STATUS_FAILED),
+        ),
+    )
+
+    User = get_user_model()
+    users_stats = User.objects.annotate(
+        mailings_count=Count("mailings", distinct=True),
+        attempts_total=Count("mailings__attempts"),
+        attempts_success=Count(
+            "mailings__attempts",
+            filter=Q(mailings__attempts__status=MailingAttempt.STATUS_SUCCESS),
+        ),
+        attempts_failed=Count(
+            "mailings__attempts",
+            filter=Q(mailings__attempts__status=MailingAttempt.STATUS_FAILED),
+        ),
+    )
+
+    return {
+        "mailings_count": mailings_qs.count(),
+        "recipients_count": recipients_qs.count(),
+        "messages_count": messages_qs.count(),
+        "attempts_total": total,
+        "attempts_success": success,
+        "attempts_failed": failed,
+        "attempts_success_rate": success_rate,
+        "mailings_stats": mailings_stats,
+        "users_stats": users_stats,
+    }
