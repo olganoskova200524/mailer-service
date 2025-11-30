@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Получатель {{ object.full_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="h4 card-title mb-3">
+            {{ object.full_name|default:object.email }}
+        </h1>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">{{ object.email }}</dd>
+
+            <dt class="col-sm-3">Комментарий</dt>
+            <dd class="col-sm-9">{{ object.comment|default:"—" }}</dd>
+        </dl>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+        <a href="{% url 'mailing:recipient_list' %}" class="btn btn-outline-secondary">
+            Назад к списку
+        </a>
+        <div>
+            <a href="{% url 'mailing:recipient_update' object.pk %}"
+               class="btn btn-primary me-2">Редактировать</a>
+            <a href="{% url 'mailing:recipient_delete' object.pk %}"
+               class="btn btn-danger">Удалить</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

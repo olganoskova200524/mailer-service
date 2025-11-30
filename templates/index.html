@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Статистика рассылок</h1>
+
+<div class="row g-3">
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Рассылки</h5>
+                <p class="mb-1">Всего: <strong>{{ total_mailings }}</strong></p>
+                <p class="mb-0">Активных: <strong>{{ active_mailings }}</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Получатели</h5>
+                <p class="mb-0">Уникальных получателей: <strong>{{ unique_recipients }}</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Попытки рассылок</h5>
+                <p class="mb-1">Успешных: <strong class="text-success">{{ attempts_success }}</strong></p>
+                <p class="mb-1">Неуспешных: <strong class="text-danger">{{ attempts_failed }}</strong></p>
+                <p class="mb-0">Отправленных сообщений: <strong>{{ messages_sent }}</strong></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

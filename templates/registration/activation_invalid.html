@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Ошибка активации{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+    <h3>Ссылка недействительна</h3>
+    <p class="mt-3">
+        Ссылка активации истекла или уже была использована.
+    </p>
+    <a href="{% url 'login' %}" class="btn btn-primary mt-3">Перейти ко входу</a>
+</div>
+{% endblock %}

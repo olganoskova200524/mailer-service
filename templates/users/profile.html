@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<h1>Профиль</h1>
+
+<p>Email: {{ request.user.email }}</p>
+{% if request.user.avatar %}
+    <p><img src="{{ request.user.avatar.url }}" alt="Аватар" width="150"></p>
+{% endif %}
+<p>Телефон: {{ request.user.phone }}</p>
+<p>Страна: {{ request.user.country }}</p>
+{% endblock %}

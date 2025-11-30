@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Рассылка #{{ object.pk }}{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h1 class="h4 card-title mb-3">
+            Рассылка #{{ object.pk }}
+        </h1>
+
+        <dl class="row mb-3">
+            <dt class="col-sm-3">Сообщение</dt>
+            <dd class="col-sm-9">
+                {{ object.message.subject }}
+            </dd>
+
+            <dt class="col-sm-3">Дата начала</dt>
+            <dd class="col-sm-9">{{ object.start_time }}</dd>
+
+            <dt class="col-sm-3">Дата окончания</dt>
+            <dd class="col-sm-9">{{ object.end_time }}</dd>
+
+            <dt class="col-sm-3">Статус</dt>
+            <dd class="col-sm-9">
+                <span class="badge bg-secondary">{{ object.status }}</span>
+            </dd>
+
+            <dt class="col-sm-3">Получатели</dt>
+            <dd class="col-sm-9">
+                {% if object.recipients.all %}
+                <ul class="mb-0">
+                    {% for r in object.recipients.all %}
+                    <li>{{ r.full_name|default:r.email }} — {{ r.email }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <span class="text-muted">Нет получателей</span>
+                {% endif %}
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+        <a href="{% url 'mailing:mailing_list' %}" class="btn btn-outline-secondary">
+            Назад к списку
+        </a>
+        <div class="d-flex gap-2">
+            <form method="post" action="{% url 'mailing:mailing_send' object.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-success">
+                    Отправить рассылку сейчас
+                </button>
+            </form>
+            <a href="{% url 'mailing:mailing_update' object.pk %}" class="btn btn-primary">
+                Редактировать
+            </a>
+            <a href="{% url 'mailing:mailing_delete' object.pk %}" class="btn btn-danger">
+                Удалить
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
