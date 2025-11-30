@@ -13,7 +13,10 @@ class RecipientListView(LoginRequiredMixin, ListView):
     template_name = "mailing/recipient_list.html"
 
     def get_queryset(self):
-        return Recipient.objects.filter(owner=self.request.user)
+        user = self.request.user
+        if user.is_manager:
+            return Recipient.objects.all()
+        return Recipient.objects.filter(owner=user)
 
 
 class RecipientCreateView(LoginRequiredMixin, CreateView):
@@ -60,7 +63,10 @@ class MessageListView(LoginRequiredMixin, ListView):
     template_name = "mailing/message_list.html"
 
     def get_queryset(self):
-        return Message.objects.filter(owner=self.request.user)
+        user = self.request.user
+        if user.is_manager:
+            return Message.objects.all()
+        return Message.objects.filter(owner=user)
 
 
 class MessageDetailView(LoginRequiredMixin, DetailView):
@@ -106,7 +112,10 @@ class MailingListView(LoginRequiredMixin, ListView):
     template_name = "mailing/mailing_list.html"
 
     def get_queryset(self):
-        return Mailing.objects.filter(owner=self.request.user)
+        user = self.request.user
+        if user.is_manager:
+            return Mailing.objects.all()
+        return Mailing.objects.filter(owner=user)
 
 
 class MailingDetailView(LoginRequiredMixin, DetailView):
@@ -114,7 +123,10 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
     template_name = "mailing/mailing_detail.html"
 
     def get_queryset(self):
-        return Mailing.objects.filter(owner=self.request.user)
+        user = self.request.user
+        if user.is_manager:
+            return Mailing.objects.all()
+        return Mailing.objects.filter(owner=user)
 
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
@@ -152,7 +164,10 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
     template_name = "mailing/attempt_list.html"
 
     def get_queryset(self):
-        return MailingAttempt.objects.filter(mailing__owner=self.request.user)
+        user = self.request.user
+        if user.is_manager:
+            return MailingAttempt.objects.select_related("mailing")
+        return MailingAttempt.objects.filter(mailing__owner=user).select_related("mailing")
 
 
 class MailingSendView(LoginRequiredMixin, View):
